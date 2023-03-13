@@ -5,10 +5,6 @@ export class OSAP {
     this.name = crypto.randomUUID();
     this.links = [];
     this.linkMessages = [];
-    this.cached_graph = {
-      devices: [],
-      edges: []
-    };
     this.msgHandlers = {};
   }
 
@@ -20,8 +16,6 @@ export class OSAP {
     this.links.push(link);
     this.linkMessages.push([]);
   }
-
-  routeTo(name) { }
 
   send(route, msg, bytes, source = []) { 
     if (typeof msg === "string") {
@@ -45,8 +39,6 @@ export class OSAP {
 
     link.write(packet);
   }
-
-  // init() { }
 
   loop(name) {
     this.links.forEach((link, i) => {
@@ -79,15 +71,24 @@ export class OSAP {
     })
   }
 
+  // TODO
+
+  routeTo(name) { }
+
   neighbors() { }
 
-  graph() { }
+  graph() { 
+    return {
+      devices: [],
+      edges: []
+    }
+  }
 
   on(msg, func) {
     this.msgHandlers[msg] = func;
   }
 
-  // callFunc(deviceName, msg, bytes) {
-  
-  // }
+  // -- no need --
+  // init() { }
+  // callFunc(deviceName, msg, bytes) { }
 }
