@@ -57,8 +57,7 @@ export class OSAP {
         source.push(i);
 
         if (destination.length === 0) {
-          console.log("received", packet); 
-
+          
           const buf = new Uint8Array(msg);
           const msgString = new TextDecoder().decode(buf);
 
@@ -83,7 +82,7 @@ export class OSAP {
     this.msgHandlers[msg] = func;
   }
 
-  callFunc(deviceName, msg, bytes) {
+  // callFunc(deviceName, msg, bytes) {
   
-  }
+  // }
 }
