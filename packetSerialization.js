@@ -22,7 +22,7 @@ export function deserialize(buf) {
   const packet = {
     destination: [],
     source: [],
-    msg: [],
+    msg: null,
     payload: null
   }
 
@@ -47,10 +47,8 @@ export function deserialize(buf) {
   const msgLength = arr[i];
   i++;
   const maxMsg = i + msgLength;
-  while (i < maxMsg) {
-    packet.msg.push(arr[i]);
-    i++;
-  }
+  packet.msg = arr.slice(i, maxMsg);
+  i = maxMsg;
 
   i++;
   packet.payload = arr.slice(i, -1);

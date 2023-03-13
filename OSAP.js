@@ -57,9 +57,8 @@ export class OSAP {
         source.push(i);
 
         if (destination.length === 0) {
-          
-          const buf = new Uint8Array(msg);
-          const msgString = new TextDecoder().decode(buf);
+
+          const msgString = new TextDecoder().decode(msg);
 
           if (!(msgString in this.msgHandlers)) {
             console.log("unknown message:", msgString);

@@ -33,7 +33,9 @@ device0.send([0, 1], "hello", test);
 
 device2.on("hello", (payload, source) => {
   console.log(source, "sent", payload);
-})
+  const decoded = new TextDecoder().decode(payload);
+  console.log(decoded);
+});
 
 console.log({
   device0,
