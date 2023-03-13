@@ -24,17 +24,20 @@ const device2 = new OSAP();
 connect(device0, device1);
 connect(device1, device2);
 
-let utf8Encode = new TextEncoder();
-const buf = utf8Encode.encode("hello world");
+device0.send([0, 1], "hello", encodeString("hey there what's up"));
+device0.send([0], "hello", encodeString("hey there, you dig?"));
 
-const test = buf;
 
-device0.send([0, 1], "hello", test);
+device1.on("hello", (payload, source) => {
+  console.log(source, "sent", payload);
+  const decoded = new TextDecoder().decode(payload);
+  console.log("on 1", decoded);
+});
 
 device2.on("hello", (payload, source) => {
   console.log(source, "sent", payload);
   const decoded = new TextDecoder().decode(payload);
-  console.log(decoded);
+  console.log("on 2", decoded);
 });
 
 console.log({
@@ -42,6 +45,13 @@ console.log({
   device1,
   device2
 })
+
+for (let i = 0; i < 1000; i++) {
+  device0.loop(0);
+  device1.loop(1);
+  device2.loop(2);
+}
+
 
 for (let i = 0; i < 1000; i++) {
   device0.loop(0);
@@ -58,3 +68,10 @@ for (let i = 0; i < 1000; i++) {
 
 // console.log({ packet, test, deserialized: packetSerialization.deserialize(packet) })
 
+
+function encodeString(str) {
+  let utf8Encode = new TextEncoder();
+  const buf = utf8Encode.encode(str);
+
+  return buf;
+}

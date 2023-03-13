@@ -31,6 +31,11 @@ export class OSAP {
 
     const [ firstGateway, ...rest ] = route;
     const link = this.links[firstGateway];
+    if (!link) {
+      console.log("no link on gateway", firstGateway);
+      return;
+    }
+
     const packet = packetSerialization.serialize({
       destination: rest,
       source,
@@ -53,6 +58,7 @@ export class OSAP {
 
       if (byte === 0) {
         const packet = packetSerialization.deserialize(linkMsgBytes);
+        this.linkMessages[i] = [];
         const { destination, source, msg } = packet;
         source.push(i);
 
