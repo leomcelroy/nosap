@@ -20,10 +20,10 @@ export function serialize({ destination, source, msg, payload }) {
 
 export function deserialize(buf) {
   const packet = {
-    destination: [],
-    source: [],
-    msg: null,
-    payload: null
+    destination: [], // gateway index[]
+    source: [], // gateway index[]
+    msg: null, // will be string, bytes[]
+    payload: null // datagram, bytes[]
   }
 
   const arr = cobs.decode(buf);
@@ -55,11 +55,3 @@ export function deserialize(buf) {
 
   return packet;
 }
-
-/*
-type packet
-{
-  destination: [0, 0], // gateway index
-  payload: [] // datagram, bytes[]
-}
-*/
