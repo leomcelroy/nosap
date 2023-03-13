@@ -40,7 +40,7 @@ export class OSAP {
     link.write(packet);
   }
 
-  loop(name) {
+  loop() {
     this.links.forEach((link, i) => {
       if (!link.available()) return;
 
@@ -71,6 +71,10 @@ export class OSAP {
     })
   }
 
+  on(msg, func) {
+    this.msgHandlers[msg] = func;
+  }
+
   // TODO
 
   routeTo(name) { }
@@ -84,11 +88,8 @@ export class OSAP {
     }
   }
 
-  on(msg, func) {
-    this.msgHandlers[msg] = func;
-  }
+  // -- NO NEED --
 
-  // -- no need --
   // init() { }
   // callFunc(deviceName, msg, bytes) { }
 }

@@ -10,13 +10,13 @@ connect(device0, device1);
 connect(device1, device2);
 
 device1.on("hello", (payload, source) => {
-  console.log(source, "sent", payload);
+  // console.log({ source, payload });
   const decoded = new TextDecoder().decode(payload);
   console.log("on 1", decoded);
 });
 
 device2.on("hello", (payload, source) => {
-  console.log(source, "sent", payload);
+  // console.log({ source, payload });
   const decoded = new TextDecoder().decode(payload);
   console.log("on 2", decoded);
 });
@@ -32,9 +32,9 @@ console.log({
 })
 
 for (let i = 0; i < 1000; i++) {
-  device0.loop(0);
-  device1.loop(1);
-  device2.loop(2);
+  device0.loop();
+  device1.loop();
+  device2.loop();
 }
 
 // const packet = packetSerialization.serialize({
