@@ -1,23 +1,34 @@
 import * as packetSerialization from "./packetSerialization.js";
 
+const GATEWAY_NUMBER = 2**2;
+
 export class OSAP {
-  constructor() {
-    this.name = crypto.randomUUID();
+  constructor(name = "") {
+    this.name = name === "" ? crypto.randomUUID() : name;
     this.links = [];
     this.linkMessages = [];
     this.msgHandlers = {};
+
+    this.graph = {
+      [this.name]: new Array(GATEWAY_NUMBER).fill(null), // gateways
+    }
+
+    // this.graph = {
+    //   devices: [],
+    //   edges: []
+    // }
   }
 
-  setName(name) {
-    this.name = name;
-  }
+  // setName(name) {
+  //   this.name = name;
+  // }
 
   addLink(link) {
     this.links.push(link);
     this.linkMessages.push([]);
   }
 
-  send(route, msg, bytes, source = []) { 
+  send(route, msg, bytes = new Uint8Array(0), source = []) { 
     if (typeof msg === "string") {
       const utf8Encode = new TextEncoder();
       msg = utf8Encode.encode(msg);
@@ -41,6 +52,35 @@ export class OSAP {
   }
 
   loop() {
+    const specialMessages = {
+      "ack": () => {
+        console.log("acked");
+      },
+      "deviceInfoQuery": (payload, source) => {
+        this.send(source, "deviceInfoReply", encodeString(this.name));
+      },
+      "deviceInfoReply": (payload, source) => {
+        const name = new TextDecoder().decode(payload);
+
+        this.graph[name] = new Array(GATEWAY_NUMBER).fill(null);
+
+        let cur = this.graph[this.name];
+        let failed = false;
+        source.slice(0, -1).forEach(gateway => {
+          const key = cur[gateway];
+          if (!key) {
+            console.log("nah man...no thing there");
+            failed = true;
+            return;
+          }
+
+          cur = this.graph[key];
+        });
+
+        if (!failed) cur[source.at(-1)] = name;
+      },
+    }
+
     this.links.forEach((link, i) => {
       if (!link.available()) return;
 
@@ -52,18 +92,21 @@ export class OSAP {
         const packet = packetSerialization.deserialize(linkMsgBytes);
         this.linkMessages[i] = [];
         const { destination, source, msg } = packet;
-        source.push(i);
+        source.unshift(i);
 
         if (destination.length === 0) {
-
           const msgString = new TextDecoder().decode(msg);
 
-          if (!(msgString in this.msgHandlers)) {
+          if (msgString in specialMessages) {
+            specialMessages[msgString](packet.payload, source);
+            return;
+          } else if (!(msgString in this.msgHandlers)) {
             console.log("unknown message:", msgString);
             return;
-          }
-
-          this.msgHandlers[msgString](packet.payload, source);
+          } else {
+            this.msgHandlers[msgString](packet.payload, source);
+            this.send(source, "ack");
+          }     
         } else {
           this.send(destination, msg, packet.payload, source);
         }
@@ -77,19 +120,39 @@ export class OSAP {
 
   // TODO
 
-  routeTo(name) { }
-
-  neighbors() { }
-
-  graph() { 
-    return {
-      devices: [],
-      edges: []
-    }
+  routeTo(name) { 
+    
   }
+
+  neighbors() { // get info, 
+    this.links.forEach((link, i) => {
+      this.send([i], "deviceInfoQuery");
+    })
+
+    for (const key in this.graph) {
+      // const gateways = this.graph[key];
+      
+    }
+
+    console.log(this.graph);
+  }
+
+  // graph() { 
+  //   return {
+  //     devices: [],
+  //     edges: []
+  //   }
+  // }
 
   // -- NO NEED --
 
   // init() { }
   // callFunc(deviceName, msg, bytes) { }
+}
+
+function encodeString(str) {
+  let utf8Encode = new TextEncoder();
+  const buf = utf8Encode.encode(str);
+
+  return buf;
 }

@@ -2,9 +2,9 @@ import * as packetSerialization from "./packetSerialization.js";
 import { OSAP } from "./OSAP.js";
 import { connect } from "./connect.js";
 
-const device0 = new OSAP();
-const device1 = new OSAP();
-const device2 = new OSAP();
+const device0 = new OSAP("device0");
+const device1 = new OSAP("device1");
+const device2 = new OSAP("device2");
 
 connect(device0, device1);
 connect(device1, device2);
@@ -21,9 +21,6 @@ device2.on("hello", (payload, source) => {
   console.log("on 2", decoded);
 });
 
-device0.send([0, 1], "hello", encodeString("hey there what's up"));
-device0.send([0], "hello", encodeString("hey there, you dig?"));
-device0.send([0, 1], "hello", encodeString("hey there what's up"));
 
 console.log({
   device0,
@@ -31,11 +28,11 @@ console.log({
   device2
 })
 
-for (let i = 0; i < 1000; i++) {
-  device0.loop();
-  device1.loop();
-  device2.loop();
-}
+// for (let i = 0; i < 1000; i++) {
+//   device0.loop();
+//   device1.loop();
+//   device2.loop();
+// }
 
 // const packet = packetSerialization.serialize({
 //   destination: [0, 2, 3],
@@ -52,3 +49,15 @@ function encodeString(str) {
 
   return buf;
 }
+
+setInterval(() => {
+  device0.loop();
+  device1.loop();
+  device2.loop();
+}, 50);
+
+device0.send([0, 1], "hello", encodeString("hello"));
+
+// setInterval(() => {
+//   device0.neighbors();
+// }, 2000)
