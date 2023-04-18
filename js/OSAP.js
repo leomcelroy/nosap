@@ -115,6 +115,11 @@ export class OSAP {
   }
 
   on(msg, func) {
+    if (["ack", "deviceInfoQuery", "deviceInfoQuery"].includes(msg)) {
+      console.log(`"${msg}" is a special message name.`);
+      return;
+    }
+
     this.msgHandlers[msg] = func;
   }
 
